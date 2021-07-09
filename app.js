@@ -2,8 +2,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 
-const stuffRoutes = require("./routes/stuff-routes.js");
+
+const sauceRoutes = require("./routes/sauce-routes.js");
 const userRoutes = require("./routes/user-routes.js");
 
 const app = express();
@@ -12,7 +14,8 @@ const app = express();
 // Create promise to interact with DataBase
 // =================================================================================
 mongoose.connect("mongodb+srv://seraphin:E23xb138@cluster0.cahn8.mongodb.net/Projet_06_DataBase?retryWrites=true&w=majority",
-{   useNewUrlParser: true,
+{
+    useNewUrlParser: true,
     useUnifiedTopology: true
 })
 .then(() => console.log("Connexion à MongoDB réussie !"))
@@ -32,8 +35,9 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
-app.use("/api/stuff", stuffRoutes);
+app.use("/pictures", express.static(path.join(__dirname, "pictures")));
 app.use("/api/auth", userRoutes);
+app.use("/api/sauces", sauceRoutes);
 
 
 module.exports = app;
