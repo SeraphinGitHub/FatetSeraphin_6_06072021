@@ -17,6 +17,7 @@ exports.getAllSauce = (req, res, next) => {
 // "GET" ==> Get one sauce by ID in DataBase
 // ==================================================================================
 exports.getOneSauce = (req, res, next) => {
+    
     Sauce.findOne({ _id: req.params.id })
     .then(sauce => res.status(200).json(sauce))
     .catch(error => res.status(404).json({ error }));
@@ -32,10 +33,15 @@ exports.createSauce = (req, res, next) => {
     delete sauceObject._id;
     
     const sauce = new Sauce({
+        userId: req.body.userId,
         ...sauceObject,
-        imageUrl: `${req.protocol}://${req.get("host")}/pictures/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get("host")}/pictures/${req.file.filename}`,
+        likes: 0,
+        dislikes: 0,
+        usersLiked: [],
+        usersDisliked: []
     });
-    
+
     sauce.save()
     .then(() => res.status(201).json({ message: "Sauce enregistrée !" }))
     .catch(error => res.status(400).json({ error }));
@@ -83,75 +89,48 @@ exports.deleteOneSauce = (req, res, next) => {
 // ==================================================================================
 exports.likeDislikeSauce = (req, res, next) => {
 
-    // Sauce.findOne({ _id: req.params.id })
-    // .then(foundSauce => {
-    // .then(sauce => {
+    Sauce.findOne({ _id: req.params.id })
+    .then(sauce => {
 
+        const userId = req.body.userId;
+        const like = req.body.like;
+        const likeArray = sauce.usersLiked;
+        const dislikeArray = sauce.usersDisliked;
 
-        Sauce.updateOne({ _id: req.params.id })
-        .then(sauce => {
+        if (like === 1) {
+            likeArray.push(userId);
+            sauce.likes ++;
+            sauce.save();
+        }
 
-            const userId = req.body.userId;
-            const like = req.body.like;
-            const likeArray = sauce.usersLiked;
-            const dislikeArray = sauce.usersDisliked;
+        else if (like === -1) {
+            dislikeArray.push(userId);
+            sauce.dislikes ++;
+            sauce.save();
+        }
+
+        else if (like === 0) {
             
-            console.log("sauce.likes");
-            console.log(sauce.likes);
-            console.log(sauce.dislikes);
-            console.log(sauce.usersDisliked);
-            console.log(sauce.usersDisliked);
-            
-            if (like === 1 && !likeArray.includes(userId)) {
-
-                if (!dislikeArray.includes(userId)) likeArray.push(userId);
-                
-                else {
-                    removeUser(dislikeArray);
-                    likeArray.push(userId);
-                }
-
-                sauce.likes ++
+            if (likeArray.includes(userId)) {
+                removeUser(likeArray, userId);
+                sauce.likes --;
+            }
+    
+            else if (dislikeArray.includes(userId)) {
+                removeUser(dislikeArray, userId);
+                sauce.dislikes --;
             }
 
-            else if (like === -1 && !dislikeArray.includes(userId)) {
-
-                if (!likeArray.includes(userId)) dislikeArray.push(userId);
-                
-                else {
-                    removeUser(likeArray);
-                    dislikeArray.push(userId);
-                }
-
-                sauce.likes --
-            }
-
-            else if (like === 0) {
-
-                if (likeArray.includes(userId)) {
-                    removeUser(likeArray);
-                    sauce.likes --
-                }
-
-                if (dislikeArray.includes(userId)) {
-                    removeUser(dislikeArray);
-                    sauce.likes ++
-                }
-            }
-
-            else return
-        })
-        .then(() => res.status(200).json({ message: "Like modifiée !"}))
-        .catch(error => res.status(404).json({ error }));
-
-
-    // })
-    // .catch(error => res.status(400).json({ error }));
+            sauce.save();
+        }
+    })
+    .then(() => res.status(200).json({ message: "Like modifiée !"}))
+    .catch(error => res.status(400).json({ error }));
 }
 
 
 // Search userID index in like/dislike array
-const removeUser = (array) => {
+const removeUser = (array, userId) => {
     const userIndex = array.indexOf(userId);
     array.splice(userIndex, 1);
 }
