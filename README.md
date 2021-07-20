@@ -15,3 +15,11 @@ node modules to include for Backend folder:
     - bcrypt
     - jsonwebtoken
     - multer
+    - dotenv
+
+
+Path for RegEx files (front-end)
+
+    - FatetSeraphin_6_06072021\front\src\app\auth\signup\signup.component.ts
+
+    - FatetSeraphin_6_06072021\front\src\app\auth\login\login.component.ts

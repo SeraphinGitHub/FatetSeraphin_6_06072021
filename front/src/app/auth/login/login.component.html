@@ -5,9 +5,10 @@
     <input type="email" class="form-control" id="email" formControlName="email">
   </div>
   <div class="form-group">
-    <label for="password">Password</label>
+    <label for="password">Mot de passe</label>
     <input type="password" class="form-control" id="password" formControlName="password">
   </div>
-  <button mat-raised-button color="primary" [disabled]="loginForm.invalid" (click)="onLogin()">LOGIN</button>
-  <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
+  <button mat-raised-button color="primary"  (click)="onLogin()">Se connecter</button>
+  <p class="text-danger" *ngIf="errorMsgEmail">{{ errorMsgEmail }}</p>
+  <p class="text-danger" *ngIf="errorMsgPsw">{{ errorMsgPsw }}</p>
 </form>
